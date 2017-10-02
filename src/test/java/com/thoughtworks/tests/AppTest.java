@@ -1,38 +1,53 @@
 package com.thoughtworks.tests;
 
-import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.junit.Test;
+import org.junit.Before;
+
+import java.util.InvalidPropertiesFormatException;
 
 /**
  * Unit test for simple App.
  */
-public class AppTest 
-    extends TestCase
+public class AppTest extends TestCase
 {
-    /**
-     * Create the test case
-     *
-     * @param testName name of the test case
-     */
-    public AppTest( String testName )
-    {
-        super( testName );
+    Graph<String> graph = new Graph<String>();
+
+    @Before
+    public void beforeTest(){
+
+        graph.addNode("A");
+        graph.addNode("B");
+        graph.addNode("C");
+        graph.addNode("D");
+        graph.addNode("E");
+
+
+        graph.addEdge("A", "B", 5);
+        graph.addEdge("B", "C", 4);
+        graph.addEdge("C", "D", 8);
+        graph.addEdge("D", "C", 8);
+        graph.addEdge("D", "E", 6);
+        graph.addEdge("A", "D", 5);
+        graph.addEdge("C", "E", 2);
+        graph.addEdge("E", "B", 3);
+        graph.addEdge("A", "E", 7);
+
     }
 
-    /**
-     * @return the suite of tests being tested
-     */
-    public static Test suite()
+    @Test
+    public void testSimpleRouteWeightCalculation()
     {
-        return new TestSuite( AppTest.class );
+        assertTrue(graph.getRouteWeight(new String[]{"A", "B", "C"}) == 9);
+        assertTrue(graph.getRouteWeight(new String[]{"A", "D"}) == 5);
+        assertTrue(graph.getRouteWeight(new String[]{"A", "D", "C"}) == 13);
+        assertTrue(graph.getRouteWeight(new String[]{"A", "E", "B", "C", "D"}) == 22);
     }
 
-    /**
-     * Rigourous Test :-)
-     */
-    public void testApp()
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void testInvalidRouteWeightCalculation()
     {
-        assertTrue( true );
+        assertTrue(graph.getRouteWeight(new String[]{"A", "E", "D"}) == 9);
+
     }
 }
