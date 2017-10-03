@@ -1,4 +1,7 @@
-package com.thoughtworks.tests;
+package com.thoughtworks.tests.models;
+
+import com.thoughtworks.tests.util.NoStopCountCondition;
+import com.thoughtworks.tests.util.StopCondition;
 
 import java.util.*;
 
@@ -102,9 +105,21 @@ public class Graph<V> {
      */
     public List getRoutes(V sourceNode, V destinationNode) {
 
+        return this.getRoutes(sourceNode, destinationNode, new NoStopCountCondition());
+    }
+
+    /**
+     * Returns a list of all the possible routes from {sourceNode} to {destinationNode} with condition
+     * @param sourceNode
+     * @param destinationNode
+     * @param condition
+     * @return
+     */
+    public List getRoutes(V sourceNode, V destinationNode, StopCondition<V> condition) {
+
         LinkedList<V> visited = new LinkedList();
         visited.add(sourceNode);
-        return this.dfs(visited, destinationNode, new LinkedList<Object>());
+        return this.dfs(visited, destinationNode, new LinkedList<Object>(), condition);
 
     }
 
@@ -133,7 +148,7 @@ public class Graph<V> {
      * @param routes
      * @return
      */
-    private List dfs(LinkedList<V> visited, V lastNode, LinkedList<Object> routes) {
+    private List dfs(LinkedList<V> visited, V lastNode, LinkedList<Object> routes, StopCondition<V> condition) {
         LinkedList<V> nodes = this.getNeighbours(visited.getLast());
 
         for (V node : nodes) {
@@ -142,7 +157,11 @@ public class Graph<V> {
             }
             if (node.equals(lastNode)) {
                 visited.add(node);
-                routes.add(new LinkedList<V>(visited));
+
+                if (!condition.filter(visited)){
+                    routes.add(new LinkedList<V>(visited));
+                }
+
                 visited.removeLast();
                 break;
             }
@@ -152,7 +171,7 @@ public class Graph<V> {
                 continue;
             }
             visited.addLast(node);
-            dfs(visited, lastNode, routes);
+            dfs(visited, lastNode, routes, condition);
             visited.removeLast();
         }
 

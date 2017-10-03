@@ -1,4 +1,4 @@
-package com.thoughtworks.tests;
+package com.thoughtworks.tests.models;
 
 /**
  * Created by jose on 2/10/17.

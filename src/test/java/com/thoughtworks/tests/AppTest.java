@@ -1,13 +1,12 @@
 package com.thoughtworks.tests;
 
+import com.thoughtworks.tests.models.Graph;
+import com.thoughtworks.tests.util.FixedStopCountCondition;
+import com.thoughtworks.tests.util.MaxStopCountCondition;
 import org.junit.Test;
 import org.junit.Before;
-import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Objects;
-
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -74,7 +73,13 @@ public class AppTest
 
         assertTrue(graph.getRoutes("A", "B").size() == 4);
         assertTrue(graph.getRoutes("D", "E").size() == 2);
+    }
 
+    @Test
+    public void testGetPossibleRoutesWithConditions(){
+
+        assertEquals(3, graph.getRoutes("A", "C", new FixedStopCountCondition(4)).size());
+        assertEquals(2, graph.getRoutes("C", "C", new MaxStopCountCondition(3)).size());
 
     }
 }
