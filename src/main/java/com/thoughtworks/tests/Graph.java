@@ -1,9 +1,6 @@
 package com.thoughtworks.tests;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Basic representation of a graph object
@@ -63,12 +60,103 @@ public class Graph<V> {
     }
 
     /**
-     * @param nodes
+     * Calculates the weight of a given route
+     * if the route is not valid returns IndexOutOfBoundsException
+     *
+     * @param nodesArray
      * @return
      */
-    public int getRouteWeight(V[] nodes) {
+    public int getRouteWeight(V[] nodesArray) {
 
-        return 0;
+        int weight = 0;
+
+        for (int i = 0; i <= nodesArray.length - 2; i++) {
+            if (!this.nodes.containsKey(nodesArray[i]))
+                throw new IndexOutOfBoundsException("Invalid route!");
+
+            List<Edge<V>> edges = this.nodes.get(nodesArray[i]);
+            boolean found = false;
+            for (Edge<V> edge : edges) {
+
+                if (edge.getVertex().equals(nodesArray[i + 1])) {
+                    weight += edge.getWeight();
+                    found = true;
+                    break;
+                }
+            }
+
+            if (found == false)
+                throw new IndexOutOfBoundsException("Invalid route!");
+            ;
+        }
+
+        return weight;
+
+    }
+
+    /**
+     * Returns a list of all the possible routes from {sourceNode} to {destinationNode}
+     * @param sourceNode
+     * @param destinationNode
+     * @return
+     */
+    public List getRoutes(V sourceNode, V destinationNode) {
+
+        LinkedList<V> visited = new LinkedList();
+        visited.add(sourceNode);
+        return this.dfs(visited, destinationNode, new LinkedList<Object>());
+
+    }
+
+    /**
+     * Returns a list of the neighbours for the given node
+     *
+     * @param node
+     * @return
+     */
+    public LinkedList<V> getNeighbours(V node) {
+        List<Edge<V>> edges = this.nodes.get(node);
+        if (edges == null) {
+            return new LinkedList();
+        }
+        LinkedList<V> neighbours = new LinkedList<V>();
+        for (Edge edge : edges) {
+            neighbours.add((V) edge.getVertex());
+        }
+        return neighbours;
+    }
+
+    /**
+     * Performs a depth search algorithm
+     * @param visited
+     * @param lastNode
+     * @param routes
+     * @return
+     */
+    private List dfs(LinkedList<V> visited, V lastNode, LinkedList<Object> routes) {
+        LinkedList<V> nodes = this.getNeighbours(visited.getLast());
+
+        for (V node : nodes) {
+            if (visited.contains(node)) {
+                continue;
+            }
+            if (node.equals(lastNode)) {
+                visited.add(node);
+                routes.add(new LinkedList<V>(visited));
+                visited.removeLast();
+                break;
+            }
+        }
+        for (V node : nodes) {
+            if (visited.contains(node) || node.equals(lastNode)) {
+                continue;
+            }
+            visited.addLast(node);
+            dfs(visited, lastNode, routes);
+            visited.removeLast();
+        }
+
+        return routes;
 
     }
 

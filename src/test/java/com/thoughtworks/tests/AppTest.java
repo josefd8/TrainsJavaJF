@@ -1,10 +1,12 @@
 package com.thoughtworks.tests;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.Before;
+import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 
-import java.util.InvalidPropertiesFormatException;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Objects;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -46,11 +48,11 @@ public class AppTest
         assertTrue(graph.isValidRoute(new String[]{"A", "D"}));
         assertTrue(graph.isValidRoute(new String[]{"A", "D", "C"}));
         assertTrue(graph.isValidRoute(new String[]{"A", "E", "B", "C", "D"}));
+        assertTrue(graph.isValidRoute(new String[]{"A", "E", "B", "C", "D", "C", "E"}));
         assertFalse(graph.isValidRoute(new String[]{"A", "E", "D"}));
     }
 
     @Test
-    @Ignore
     public void testSimpleRouteWeightCalculation()
     {
         assertTrue(graph.getRouteWeight(new String[]{"A", "B", "C"}) == 9);
@@ -60,10 +62,19 @@ public class AppTest
     }
 
     @Test(expected = IndexOutOfBoundsException.class)
-    @Ignore
     public void testInvalidRouteWeightCalculation()
     {
         assertTrue(graph.getRouteWeight(new String[]{"A", "E", "D"}) == 9);
+        assertTrue(graph.getRouteWeight(new String[]{"A", "B", "E"}) == 10);
+
+    }
+
+    @Test
+    public void testGetPossibleRoutes(){
+
+        assertTrue(graph.getRoutes("A", "B").size() == 4);
+        assertTrue(graph.getRoutes("D", "E").size() == 2);
+
 
     }
 }
