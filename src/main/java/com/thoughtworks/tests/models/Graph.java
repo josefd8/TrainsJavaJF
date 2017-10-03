@@ -117,9 +117,31 @@ public class Graph<V> {
      */
     public List getRoutes(V sourceNode, V destinationNode, StopCondition<V> condition) {
 
-        LinkedList<V> visited = new LinkedList();
-        visited.add(sourceNode);
-        return this.dfs(visited, destinationNode, new LinkedList<Object>(), condition);
+        if (!sourceNode.equals(destinationNode)) {
+            LinkedList<V> visited = new LinkedList();
+            visited.add(sourceNode);
+            return this.dfs(visited, destinationNode, new LinkedList<Object>(), condition);
+        }
+
+        LinkedList<V> neighbours = this.getNeighbours(sourceNode);
+        LinkedList<Object> finalCount = new LinkedList<Object>();
+
+        for (V neighbour : neighbours){
+
+            LinkedList<V> visited = new LinkedList();
+            visited.add(neighbour);
+
+            for (Object route : this.dfs(visited, destinationNode, new LinkedList<Object>(), condition)){
+                LinkedList<V> temp = new LinkedList<V>();
+                temp = (LinkedList<V>) route;
+                temp.addFirst(sourceNode);
+                finalCount.add(temp);
+            }
+
+        }
+
+
+        return finalCount;
 
     }
 
