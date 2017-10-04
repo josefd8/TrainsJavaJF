@@ -238,6 +238,42 @@ public class Graph<V> {
 
     private List dijkstra(V sourceNode, V destinationNode){
 
+        Map<V, Double> shortestDistanceFromSource = new HashMap<V, Double>();
+        Map<V,V> previousVertex = new HashMap<V, V>();
+
+        List<V> unVisited = new LinkedList<V>(nodes.keySet());
+        unVisited.remove(sourceNode);
+        unVisited.add(0, sourceNode);
+
+
+        for (V key : unVisited){
+            shortestDistanceFromSource.put(key, Double.POSITIVE_INFINITY);
+            previousVertex.put(key, null);
+        }
+
+        shortestDistanceFromSource.put(sourceNode, new Double(0));
+
+
+        while(unVisited.size() > 0){
+
+            V node = unVisited.get(0);
+
+            List<V> neighbours = new LinkedList<V>();
+            neighbours = this.getNeighbours(node);
+
+            for (V n : neighbours){
+
+                /*
+                if (shortestDistanceFromSource.get(n) < this.getRouteWeight({node, n})){
+
+                }
+                */
+            }
+
+
+
+        }
+
         return null;
     }
 
