@@ -7,6 +7,6 @@ import java.util.List;
  */
 public class NoStopCountCondition implements StopCondition {
     public boolean filter(List route) {
-        return false;
+        return true;
     }
 }

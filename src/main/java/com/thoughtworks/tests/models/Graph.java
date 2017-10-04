@@ -117,21 +117,24 @@ public class Graph<V> {
      */
     public List getRoutes(V sourceNode, V destinationNode, StopCondition<V> condition) {
 
+        LinkedList<Object> finalCount = new LinkedList<Object>();
+
         if (!sourceNode.equals(destinationNode)) {
             LinkedList<V> visited = new LinkedList();
             visited.add(sourceNode);
-            return this.dfs(visited, destinationNode, new LinkedList<Object>(), condition);
+            finalCount = (LinkedList) this.dfs(visited, destinationNode, new LinkedList<Object>());
+            return filterRoutes(finalCount, condition);
         }
 
         LinkedList<V> neighbours = this.getNeighbours(sourceNode);
-        LinkedList<Object> finalCount = new LinkedList<Object>();
+
 
         for (V neighbour : neighbours){
 
             LinkedList<V> visited = new LinkedList();
             visited.add(neighbour);
 
-            for (Object route : this.dfs(visited, destinationNode, new LinkedList<Object>(), condition)){
+            for (Object route : this.dfs(visited, destinationNode, new LinkedList<Object>())){
                 LinkedList<V> temp = new LinkedList<V>();
                 temp = (LinkedList<V>) route;
                 temp.addFirst(sourceNode);
@@ -141,9 +144,31 @@ public class Graph<V> {
         }
 
 
-        return finalCount;
+        return filterRoutes(finalCount, condition);
 
     }
+
+    /**
+     * Filter the given list of routes by the condition given
+     * @param routes
+     * @param condition
+     * @return
+     */
+    private List filterRoutes(LinkedList<Object> routes, StopCondition<V> condition){
+
+        LinkedList<Object> finalRoutes =  new LinkedList<Object>();
+
+        for (Object route : routes){
+            LinkedList<V> temp = (LinkedList<V>) route;
+
+            if(condition.filter(temp)){
+                finalRoutes.add(route);
+            }
+        }
+
+        return finalRoutes;
+    }
+
 
     /**
      * Returns a list of the neighbours for the given node
@@ -170,7 +195,7 @@ public class Graph<V> {
      * @param routes
      * @return
      */
-    private List dfs(LinkedList<V> visited, V lastNode, LinkedList<Object> routes, StopCondition<V> condition) {
+    private List dfs(LinkedList<V> visited, V lastNode, LinkedList<Object> routes) {
         LinkedList<V> nodes = this.getNeighbours(visited.getLast());
 
         for (V node : nodes) {
@@ -179,11 +204,7 @@ public class Graph<V> {
             }
             if (node.equals(lastNode)) {
                 visited.add(node);
-
-                if (!condition.filter(visited)){
-                    routes.add(new LinkedList<V>(visited));
-                }
-
+                routes.add(new LinkedList<V>(visited));
                 visited.removeLast();
                 break;
             }
@@ -193,7 +214,7 @@ public class Graph<V> {
                 continue;
             }
             visited.addLast(node);
-            dfs(visited, lastNode, routes, condition);
+            dfs(visited, lastNode, routes);
             visited.removeLast();
         }
 
@@ -201,6 +222,24 @@ public class Graph<V> {
 
     }
 
+    public int getShortestRouteWeight(V sourceNode, V destinationNode){
+
+        V[] route = (V[]) this.getShortestRoute(sourceNode, destinationNode).toArray();
+        return this.getRouteWeight(route);
+
+    }
+
+    public List getShortestRoute(V sourceNode, V destinationNode){
+
+        return dijkstra(sourceNode, destinationNode);
+
+    }
+
+
+    private List dijkstra(V sourceNode, V destinationNode){
+
+        return null;
+    }
 
 }
 

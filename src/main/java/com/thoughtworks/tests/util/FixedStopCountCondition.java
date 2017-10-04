@@ -15,7 +15,8 @@ public class FixedStopCountCondition implements StopCondition {
 
     public boolean filter(List nodes) {
 
-        if (nodes.size() == this.stops)
+        //-1 because the first node is not considered a stop
+        if (nodes.size() - 1 == this.stops)
             return true;
 
         return false;

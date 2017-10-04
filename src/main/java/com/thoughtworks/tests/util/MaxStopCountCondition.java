@@ -15,7 +15,7 @@ public class MaxStopCountCondition implements StopCondition {
 
     public boolean filter(List nodes) {
 
-        if (nodes.size() <= this.maxStops)
+        if (nodes.size() - 1 <= this.maxStops)
             return true;
 
         return false;
