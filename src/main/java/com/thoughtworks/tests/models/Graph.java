@@ -99,6 +99,7 @@ public class Graph<V> {
 
     /**
      * Returns a list of all the possible routes from {sourceNode} to {destinationNode}
+     *
      * @param sourceNode
      * @param destinationNode
      * @return
@@ -110,6 +111,7 @@ public class Graph<V> {
 
     /**
      * Returns a list of all the possible routes from {sourceNode} to {destinationNode} with condition
+     *
      * @param sourceNode
      * @param destinationNode
      * @param condition
@@ -129,12 +131,12 @@ public class Graph<V> {
         LinkedList<V> neighbours = this.getNeighbours(sourceNode);
 
 
-        for (V neighbour : neighbours){
+        for (V neighbour : neighbours) {
 
             LinkedList<V> visited = new LinkedList();
             visited.add(neighbour);
 
-            for (Object route : this.dfs(visited, destinationNode, new LinkedList<Object>())){
+            for (Object route : this.dfs(visited, destinationNode, new LinkedList<Object>())) {
                 LinkedList<V> temp = new LinkedList<V>();
                 temp = (LinkedList<V>) route;
                 temp.addFirst(sourceNode);
@@ -150,18 +152,19 @@ public class Graph<V> {
 
     /**
      * Filter the given list of routes by the condition given
+     *
      * @param routes
      * @param condition
      * @return
      */
-    private List filterRoutes(LinkedList<Object> routes, StopCondition<V> condition){
+    private List filterRoutes(LinkedList<Object> routes, StopCondition<V> condition) {
 
-        LinkedList<Object> finalRoutes =  new LinkedList<Object>();
+        LinkedList<Object> finalRoutes = new LinkedList<Object>();
 
-        for (Object route : routes){
+        for (Object route : routes) {
             LinkedList<V> temp = (LinkedList<V>) route;
 
-            if(condition.filter(temp)){
+            if (condition.filter(temp)) {
                 finalRoutes.add(route);
             }
         }
@@ -190,6 +193,7 @@ public class Graph<V> {
 
     /**
      * Performs a depth search algorithm
+     *
      * @param visited
      * @param lastNode
      * @param routes
@@ -222,59 +226,77 @@ public class Graph<V> {
 
     }
 
-    public int getShortestRouteWeight(V sourceNode, V destinationNode){
+    public int getShortestRouteWeight(V sourceNode, V destinationNode) {
 
-        V[] route = (V[]) this.getShortestRoute(sourceNode, destinationNode).toArray();
-        return this.getRouteWeight(route);
-
-    }
-
-    public List getShortestRoute(V sourceNode, V destinationNode){
-
-        return dijkstra(sourceNode, destinationNode);
-
+        return this.dijkstra(sourceNode, destinationNode);
     }
 
 
-    private List dijkstra(V sourceNode, V destinationNode){
 
-        Map<V, Double> shortestDistanceFromSource = new HashMap<V, Double>();
-        Map<V,V> previousVertex = new HashMap<V, V>();
+    public int dijkstra(V sourceNode, V destinationNode) {
+
+        Map<V, Double> distanceFromSource = new HashMap<V, Double>();
+        Map<V, V> previousVertex = new HashMap<V, V>();
 
         List<V> unVisited = new LinkedList<V>(nodes.keySet());
-        unVisited.remove(sourceNode);
-        unVisited.add(0, sourceNode);
 
-
-        for (V key : unVisited){
-            shortestDistanceFromSource.put(key, Double.POSITIVE_INFINITY);
+        for (V key : unVisited) {
+            distanceFromSource.put(key, Double.POSITIVE_INFINITY);
             previousVertex.put(key, null);
         }
 
-        shortestDistanceFromSource.put(sourceNode, new Double(0));
+        distanceFromSource.put(sourceNode, new Double(0));
 
+        while (unVisited.size() > 0) {
 
-        while(unVisited.size() > 0){
+            //Get unVisited node with the lowest distance from sourceNode
+            V node = getClosestFromSource(distanceFromSource, unVisited);
 
-            V node = unVisited.get(0);
+            //Get neighbours from closest unvisited node to source
+            List<V> neighbours = this.getNeighbours(node);
 
-            List<V> neighbours = new LinkedList<V>();
-            neighbours = this.getNeighbours(node);
+            for (V neighbour : neighbours) {
 
-            for (V n : neighbours){
+                //Analize the un visited neighbours
+                if (unVisited.contains(neighbour)) {
 
-                /*
-                if (shortestDistanceFromSource.get(n) < this.getRouteWeight({node, n})){
+                    //Calculate distance from node to its neighbour
+                    List<V> tempArr = new LinkedList<V>();
+                    tempArr.add(node);
+                    tempArr.add(neighbour);
+                    int distance = this.getRouteWeight((V[]) tempArr.toArray());
+
+                    Double newCalculatedDistance = distance + distanceFromSource.get(node);
+                    if (newCalculatedDistance < distanceFromSource.get(neighbour)){
+                        distanceFromSource.put(neighbour, newCalculatedDistance);
+                        previousVertex.put(neighbour, node);
+                    }
 
                 }
-                */
             }
 
-
-
+            unVisited.remove(node);
         }
 
-        return null;
+        return distanceFromSource.get(destinationNode).intValue();
+    }
+
+    public V getClosestFromSource(Map<V, Double> distanceFromSource, List<V> unVisited) {
+
+        Set<V> keys = distanceFromSource.keySet();
+        Double lowest = Double.POSITIVE_INFINITY;
+        V node = null;
+        for (V key : keys) {
+            if (unVisited.contains(key)){
+                if (distanceFromSource.get(key) < lowest) {
+                    node = key;
+                    lowest = distanceFromSource.get(key);
+                }
+            }
+        }
+
+        return node;
+
     }
 
 }

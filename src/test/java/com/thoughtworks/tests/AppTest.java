@@ -5,6 +5,12 @@ import com.thoughtworks.tests.util.FixedStopCountCondition;
 import com.thoughtworks.tests.util.MaxStopCountCondition;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
 import static org.junit.Assert.*;
 
 /**
@@ -77,8 +83,31 @@ public class AppTest
 
         //I believe this one is incorrect in the examples and should be 1
         assertEquals(1, graph.getRoutes("A", "C", new FixedStopCountCondition(4)).size());
+
         assertEquals(2, graph.getRoutes("C", "C", new MaxStopCountCondition(3)).size());
 
+    }
+
+    @Test
+    public void testGetClosestFromSource(){
+
+        Map<String, Double> distancesArray = new HashMap<String, Double>();
+        distancesArray.put("A",new Double(1));
+        distancesArray.put("B",new Double(5));
+        distancesArray.put("C",new Double(6));
+        distancesArray.put("D",new Double(3));
+        distancesArray.put("E",new Double(4));
+
+        List<String> unVisited = new LinkedList<String>();
+        unVisited.add("B");
+        unVisited.add("C");
+        unVisited.add("D");
+        unVisited.add("E");
+        assertEquals("D", graph.getClosestFromSource(distancesArray, unVisited));
+
+        distancesArray.put("F",new Double(0));
+        unVisited.add("F");
+        assertEquals("F", graph.getClosestFromSource(distancesArray, unVisited));
     }
 
     @Test
@@ -87,4 +116,5 @@ public class AppTest
         assertEquals(9, graph.getShortestRouteWeight("A", "C"));
 
     }
+
 }
