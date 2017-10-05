@@ -1,9 +1,9 @@
 package com.thoughtworks.tests.models;
 
-import com.sun.org.apache.xerces.internal.xs.LSInputList;
-import com.thoughtworks.tests.util.NoStopCountCondition;
 import com.thoughtworks.tests.util.StopCondition;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.*;
 
 /**
@@ -14,17 +14,17 @@ public class Graph {
 
     private Map<String, List<Edge>> nodes = new HashMap<String, List<Edge>>();
 
-    public void addNode(String vertex) {
+    private void addNode(String vertex) {
         if (nodes.containsKey(vertex)) {
             return;
         }
         nodes.put(vertex, new ArrayList<Edge>());
     }
 
-    public void addEdge(String from, String to, int cost) {
-        this.addNode(from);
-        this.addNode(to);
-        nodes.get(from).add(new Edge(to, cost));
+    public void addEdge(String sourceNode, String destinationNode, int distance) {
+        this.addNode(sourceNode);
+        this.addNode(destinationNode);
+        nodes.get(sourceNode).add(new Edge(destinationNode, distance));
     }
 
     /**
@@ -39,7 +39,6 @@ public class Graph {
 
         if (nodesArray.length <= 1)
             return true;
-
 
         for (int i = 0; i <= nodesArray.length - 2; i++) {
             if (!this.nodes.containsKey(nodesArray[i]))
@@ -68,7 +67,7 @@ public class Graph {
      * if the route is not valid returns IndexOutOfBoundsException
      *
      * @param nodesArray
-     * @return
+     * @return IndexOutOfBoundsException
      */
     public int getRouteWeight(String[] nodesArray) {
 
@@ -99,24 +98,12 @@ public class Graph {
     }
 
     /**
-     * Returns a list of all the possible routes from {sourceNode} to {destinationNode}
-     *
-     * @param sourceNode
-     * @param destinationNode
-     * @return
-     */
-    public List getRoutes(String sourceNode, String destinationNode) {
-
-        return this.getRoutes(sourceNode, destinationNode, new NoStopCountCondition());
-    }
-
-    /**
      * Returns a list of all the possible routes from {sourceNode} to {destinationNode} with condition
      *
-     * @param sourceNode
-     * @param destinationNode
-     * @param condition
-     * @return
+     * @param sourceNode      Name of the start node
+     * @param destinationNode Name of the final node
+     * @param condition       Condition to filter the resulting set of routes
+     * @return List of routes that match the condition given
      */
     public List getRoutes(String sourceNode, String destinationNode, StopCondition condition) {
 
@@ -129,8 +116,7 @@ public class Graph {
             return filterRoutes(finalCount, condition);
         }
 
-        LinkedList<String> neighbours = this.getNeighbours(sourceNode);
-
+        List<String> neighbours = this.getNeighbours(sourceNode);
 
         for (String neighbour : neighbours) {
 
@@ -146,7 +132,6 @@ public class Graph {
 
         }
 
-
         return filterRoutes(finalCount, condition);
 
     }
@@ -154,9 +139,9 @@ public class Graph {
     /**
      * Filter the given list of routes by the condition given
      *
-     * @param routes
-     * @param condition
-     * @return
+     * @param routes    List of routes
+     * @param condition Filter condition
+     * @return List of routes that match the filter condition
      */
     private List filterRoutes(LinkedList<Object> routes, StopCondition condition) {
 
@@ -175,29 +160,38 @@ public class Graph {
 
 
     /**
-     * Returns a list of the neighbours for the given node
+     * Get the neighbours of the node
      *
-     * @param node
-     * @return
+     * @param node Name of the node
+     * @return List of neighbour nodes
      */
-    public LinkedList<String> getNeighbours(String node) {
+    private List<String> getNeighbours(String node) {
         List<Edge> edges = this.nodes.get(node);
         if (edges == null) {
             return new LinkedList();
         }
-        LinkedList<String> neighbours = new LinkedList<String>();
+        List<String> neighbours = new LinkedList<String>();
         for (Edge edge : edges) {
-            neighbours.add( edge.getVertex());
+            neighbours.add(edge.getVertex());
         }
         return neighbours;
     }
 
-    private List<String> getUnvisitedNeighbours(String node, List<String> unvisited){
+
+    /**
+     * Returns a list of all the neighbour nodes of {node} that haven't yet been
+     * visited
+     *
+     * @param node      Name of the node
+     * @param unvisited List of nodes that haven't been visited
+     * @return List of unvisited neighbours
+     */
+    private List<String> getUnvisitedNeighbours(String node, List<String> unvisited) {
 
         List<String> neighbours = this.getNeighbours(node);
         List<String> unVisitedNeighbours = new LinkedList<String>();
-        for(String n : neighbours){
-            if (unvisited.contains(n)){
+        for (String n : neighbours) {
+            if (unvisited.contains(n)) {
                 unVisitedNeighbours.add(n);
             }
         }
@@ -207,15 +201,15 @@ public class Graph {
     }
 
     /**
-     * Performs a depth search algorithm
+     * Performs a recursive depth search algorithm
      *
-     * @param visited
-     * @param lastNode
-     * @param routes
-     * @return
+     * @param visited  List of the visited nodes
+     * @param lastNode Last node evaluated
+     * @param routes   List of routes from starting point to final point
+     * @return List of routes from starting point to final point
      */
     private List dfs(LinkedList<String> visited, String lastNode, LinkedList<Object> routes) {
-        LinkedList<String> nodes = this.getNeighbours(visited.getLast());
+        List<String> nodes = this.getNeighbours(visited.getLast());
 
         for (String node : nodes) {
             if (visited.contains(node)) {
@@ -241,11 +235,18 @@ public class Graph {
 
     }
 
+    /**
+     * Calculates the weight of the most efficient path from {sourceNode} to {destinationNode}
+     *
+     * @param sourceNode      Name of the starting node
+     * @param destinationNode Name of the final node
+     * @return Weight of the most efficient route
+     */
     public int getShortestRouteWeight(String sourceNode, String destinationNode) {
 
         List<Integer> bestRoutes = new LinkedList<Integer>();
         List<String> neighbours = this.getNeighbours(sourceNode);
-        for (String neighbour : neighbours){
+        for (String neighbour : neighbours) {
             bestRoutes.add(this.getDistanceToNeighbour(sourceNode, neighbour) + this.dijkstra(neighbour, destinationNode));
         }
 
@@ -253,20 +254,32 @@ public class Graph {
         return bestRoutes.get(0);
     }
 
-    private int getDistanceToNeighbour(String sourceNode, String neighbour){
+    /**
+     * Get the distance from {sourceNode} to its neighbour {destinationNode}
+     *
+     * @param sourceNode Name of the starting node
+     * @param neighbour  Name of the neighbour node
+     * @return Distance
+     */
+    private int getDistanceToNeighbour(String sourceNode, String neighbour) {
 
         List<Edge> edges = this.nodes.get(sourceNode);
-            for (Edge e : edges){
-                if (e.getVertex().equals(neighbour)){
-                    return e.getWeight();
-                }
+        for (Edge e : edges) {
+            if (e.getVertex().equals(neighbour)) {
+                return e.getWeight();
             }
+        }
         return 0;
     }
 
-
-
-    public int dijkstra(String sourceNode, String destinationNode) {
+    /**
+     * Performs a dijkstra (calculates route of less weight or most efficient route)
+     *
+     * @param sourceNode      Name of source node
+     * @param destinationNode Name of final node
+     * @return Weight of the most efficient route
+     */
+    private int dijkstra(String sourceNode, String destinationNode) {
 
         Map<String, Double> distanceFromSource = new HashMap<String, Double>();
         Map<String, String> previousVertex = new HashMap<String, String>();
@@ -297,7 +310,7 @@ public class Graph {
                     int distance = this.getDistanceToNeighbour(node, neighbour);
 
                     Double newCalculatedDistance = distance + distanceFromSource.get(node);
-                    if (newCalculatedDistance < distanceFromSource.get(neighbour)){
+                    if (newCalculatedDistance < distanceFromSource.get(neighbour)) {
                         distanceFromSource.put(neighbour, newCalculatedDistance);
                         previousVertex.put(neighbour, node);
                     }
@@ -311,13 +324,20 @@ public class Graph {
     }
 
 
-    public String getClosestFromSource(Map<String, Double> distanceFromSource, List<String> unVisited) {
+    /**
+     * Gets the unvisited node closest to the source node
+     *
+     * @param distanceFromSource Map that represent the all the nodes from the graph with its distance from source node
+     * @param unVisited          List of unvisited nodes
+     * @return unvisited closest node to source
+     */
+    private String getClosestFromSource(Map<String, Double> distanceFromSource, List<String> unVisited) {
 
         Set<String> keys = distanceFromSource.keySet();
         Double lowest = Double.POSITIVE_INFINITY;
         String node = unVisited.get(0);
         for (String key : keys) {
-            if (unVisited.contains(key)){
+            if (unVisited.contains(key)) {
                 if (distanceFromSource.get(key) < lowest) {
                     node = key;
                     lowest = distanceFromSource.get(key);
@@ -327,6 +347,29 @@ public class Graph {
 
         return node;
 
+    }
+
+    /**
+     * Adds nodes and edges from file.
+     * @param inputFile File object to get information from
+     */
+    public void buildFromFile(File inputFile) throws FileNotFoundException {
+        Scanner in = new Scanner(inputFile);
+
+        while (in.hasNext()) {
+            String line = in.next();
+
+            if (line.length() != 3)
+                throw new IllegalArgumentException("One of the arguments provided is not correct: " + line);
+
+
+            String startNode = new String(String.valueOf(line.charAt(0)));
+            String finalNode = new String(String.valueOf(line.charAt(1)));
+            int distance = Integer.parseInt(new String(String.valueOf(line.charAt(2))));
+
+            this.addEdge(startNode, finalNode, distance);
+
+        }
     }
 
 }

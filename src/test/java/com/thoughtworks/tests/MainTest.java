@@ -1,8 +1,7 @@
 package com.thoughtworks.tests;
 
 import com.thoughtworks.tests.models.Graph;
-import com.thoughtworks.tests.util.FixedStopCountCondition;
-import com.thoughtworks.tests.util.MaxStopCountCondition;
+import com.thoughtworks.tests.util.*;
 import org.junit.Before;
 import org.junit.Test;
 import java.util.HashMap;
@@ -13,22 +12,17 @@ import java.util.Map;
 import static org.junit.Assert.*;
 
 /**
- * Unit test for simple App.
+ * Unit test for simple Main.
  */
-public class AppTest
+public class MainTest
 {
     Graph graph;
+    GraphOperationsInterface operationService;
 
     @Before
     public void beforeTest(){
 
         graph = new Graph();
-
-        graph.addNode("A");
-        graph.addNode("B");
-        graph.addNode("C");
-        graph.addNode("D");
-        graph.addNode("E");
 
         graph.addEdge("A", "B", 5);
         graph.addEdge("B", "C", 4);
@@ -39,6 +33,9 @@ public class AppTest
         graph.addEdge("C", "E", 2);
         graph.addEdge("E", "B", 3);
         graph.addEdge("A", "E", 7);
+
+        this.operationService = new GraphOperations(this.graph);
+
 
     }
 
@@ -72,9 +69,8 @@ public class AppTest
 
     @Test
     public void testGetPossibleRoutes(){
-
-        assertTrue(graph.getRoutes("A", "B").size() == 4);
-        assertTrue(graph.getRoutes("D", "E").size() == 2);
+        assertTrue(graph.getRoutes("A", "B", new NoStopCountCondition()).size() == 4);
+        assertTrue(graph.getRoutes("D", "E", new NoStopCountCondition()).size() == 2);
     }
 
     @Test
@@ -84,37 +80,43 @@ public class AppTest
         assertEquals(1, graph.getRoutes("A", "C", new FixedStopCountCondition(4)).size());
 
         assertEquals(2, graph.getRoutes("C", "C", new MaxStopCountCondition(3)).size());
-
-    }
-
-    @Test
-    public void testGetClosestFromSource(){
-
-        Map<String, Double> distancesArray = new HashMap<String, Double>();
-        distancesArray.put("A",new Double(1));
-        distancesArray.put("B",new Double(5));
-        distancesArray.put("C",new Double(6));
-        distancesArray.put("D",new Double(3));
-        distancesArray.put("E",new Double(4));
-
-        List<String> unVisited = new LinkedList<String>();
-        unVisited.add("B");
-        unVisited.add("C");
-        unVisited.add("D");
-        unVisited.add("E");
-        assertEquals("D", graph.getClosestFromSource(distancesArray, unVisited));
-
-        distancesArray.put("F",new Double(0));
-        unVisited.add("F");
-        assertEquals("F", graph.getClosestFromSource(distancesArray, unVisited));
     }
 
     @Test
     public void testBestRouteCalculation(){
-
         assertEquals(9, graph.getShortestRouteWeight("A", "C"));
         assertEquals(9, graph.getShortestRouteWeight("B", "B"));
+    }
 
+    @Test
+    public void testSimpleRouteWeight(){
+
+        assertEquals(9, operationService.simpleRouteWeight(new String[]{"A", "B", "C"}));
+        assertEquals(5, operationService.simpleRouteWeight(new String[]{"A", "D"}));
+        assertEquals(13, operationService.simpleRouteWeight(new String[]{"A", "D", "C"}));
+        assertEquals(22, operationService.simpleRouteWeight(new String[]{"A", "E", "B", "C", "D"}));
+    }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void testSimpleRouteWeightNoValidRoute(){
+        assertEquals(0, this.operationService.simpleRouteWeight(new String[]{"A", "E", "D"}));
+    }
+
+    @Test
+    public void testPossibleRoutes(){
+
+        assertEquals(4, this.operationService.possibleRoutes("A", "B", new NoStopCountCondition()));
+        assertEquals(2, this.operationService.possibleRoutes("D", "E", new NoStopCountCondition()));
+        assertEquals(0, this.operationService.possibleRoutes("B", "A", new NoStopCountCondition()));
+        assertEquals(1, this.operationService.possibleRoutes("A", "C", new FixedStopCountCondition(4)));
+        assertEquals(2, this.operationService.possibleRoutes("C", "C", new MaxStopCountCondition(3)));
+
+    }
+
+    @Test
+    public void testShortestRouteWeight(){
+        assertEquals(9, this.operationService.shortestRouteWeight("A", "C"));
+        assertEquals(9, this.operationService.shortestRouteWeight("B", "B"));
     }
 
 }

@@ -1,0 +1,9 @@
+distanceOf*[A,B,C]
+distanceOf*[A,D]
+distanceOf*[A,D,C]
+distanceOf*[A,E,B,C,D]
+distanceOf*[A,E,D]
+numberOfRoutes*[C,C]*MaxStopCondition*3
+numberOfRoutes*[A,C]*FixedStopCondition*4
+bestRoute*[A,C]
+bestRoute*[B,B]
