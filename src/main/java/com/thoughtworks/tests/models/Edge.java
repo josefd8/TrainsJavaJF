@@ -3,16 +3,16 @@ package com.thoughtworks.tests.models;
 /**
  * Created by jose on 2/10/17.
  */
-public class Edge<V> {
+public class Edge {
 
-    private V vertex;
+    private String vertex;
     private int weight;
 
-    public Edge(V v, int c){
+    public Edge(String v, int c){
         vertex = v; weight = c;
     }
 
-    public V getVertex() {
+    public String getVertex() {
         return vertex;
     }
 

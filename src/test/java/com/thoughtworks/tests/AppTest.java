@@ -5,7 +5,6 @@ import com.thoughtworks.tests.util.FixedStopCountCondition;
 import com.thoughtworks.tests.util.MaxStopCountCondition;
 import org.junit.Before;
 import org.junit.Test;
-
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -18,12 +17,12 @@ import static org.junit.Assert.*;
  */
 public class AppTest
 {
-    Graph<String> graph;
+    Graph graph;
 
     @Before
     public void beforeTest(){
 
-        graph = new Graph<String>();
+        graph = new Graph();
 
         graph.addNode("A");
         graph.addNode("B");
@@ -64,7 +63,7 @@ public class AppTest
     }
 
     @Test(expected = IndexOutOfBoundsException.class)
-    public void testInvalidRouteWeightCalculation()
+        public void testInvalidRouteWeightCalculation()
     {
         assertTrue(graph.getRouteWeight(new String[]{"A", "E", "D"}) == 9);
         assertTrue(graph.getRouteWeight(new String[]{"A", "B", "E"}) == 10);
@@ -114,6 +113,7 @@ public class AppTest
     public void testBestRouteCalculation(){
 
         assertEquals(9, graph.getShortestRouteWeight("A", "C"));
+        assertEquals(9, graph.getShortestRouteWeight("B", "B"));
 
     }
 

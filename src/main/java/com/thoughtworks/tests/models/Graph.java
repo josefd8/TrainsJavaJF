@@ -1,29 +1,30 @@
 package com.thoughtworks.tests.models;
 
+import com.sun.org.apache.xerces.internal.xs.LSInputList;
 import com.thoughtworks.tests.util.NoStopCountCondition;
 import com.thoughtworks.tests.util.StopCondition;
 
 import java.util.*;
 
 /**
- * Basic representation of a graph object
+ * Basic representation of a directed graph object
  * Created by jose on 2/10/17.
  */
-public class Graph<V> {
+public class Graph {
 
-    private Map<V, List<Edge<V>>> nodes = new HashMap<V, List<Edge<V>>>();
+    private Map<String, List<Edge>> nodes = new HashMap<String, List<Edge>>();
 
-    public void addNode(V vertex) {
+    public void addNode(String vertex) {
         if (nodes.containsKey(vertex)) {
             return;
         }
-        nodes.put(vertex, new ArrayList<Edge<V>>());
+        nodes.put(vertex, new ArrayList<Edge>());
     }
 
-    public void addEdge(V from, V to, int cost) {
+    public void addEdge(String from, String to, int cost) {
         this.addNode(from);
         this.addNode(to);
-        nodes.get(from).add(new Edge<V>(to, cost));
+        nodes.get(from).add(new Edge(to, cost));
     }
 
     /**
@@ -34,7 +35,7 @@ public class Graph<V> {
      * @param nodesArray
      * @return
      */
-    public boolean isValidRoute(V[] nodesArray) {
+    public boolean isValidRoute(String[] nodesArray) {
 
         if (nodesArray.length <= 1)
             return true;
@@ -44,9 +45,9 @@ public class Graph<V> {
             if (!this.nodes.containsKey(nodesArray[i]))
                 return false;
 
-            List<Edge<V>> edges = this.nodes.get(nodesArray[i]);
+            List<Edge> edges = this.nodes.get(nodesArray[i]);
             boolean found = false;
-            for (Edge<V> edge : edges) {
+            for (Edge edge : edges) {
 
                 if (edge.getVertex().equals(nodesArray[i + 1])) {
                     found = true;
@@ -69,7 +70,7 @@ public class Graph<V> {
      * @param nodesArray
      * @return
      */
-    public int getRouteWeight(V[] nodesArray) {
+    public int getRouteWeight(String[] nodesArray) {
 
         int weight = 0;
 
@@ -77,9 +78,9 @@ public class Graph<V> {
             if (!this.nodes.containsKey(nodesArray[i]))
                 throw new IndexOutOfBoundsException("Invalid route!");
 
-            List<Edge<V>> edges = this.nodes.get(nodesArray[i]);
+            List<Edge> edges = this.nodes.get(nodesArray[i]);
             boolean found = false;
-            for (Edge<V> edge : edges) {
+            for (Edge edge : edges) {
 
                 if (edge.getVertex().equals(nodesArray[i + 1])) {
                     weight += edge.getWeight();
@@ -104,7 +105,7 @@ public class Graph<V> {
      * @param destinationNode
      * @return
      */
-    public List getRoutes(V sourceNode, V destinationNode) {
+    public List getRoutes(String sourceNode, String destinationNode) {
 
         return this.getRoutes(sourceNode, destinationNode, new NoStopCountCondition());
     }
@@ -117,28 +118,28 @@ public class Graph<V> {
      * @param condition
      * @return
      */
-    public List getRoutes(V sourceNode, V destinationNode, StopCondition<V> condition) {
+    public List getRoutes(String sourceNode, String destinationNode, StopCondition condition) {
 
         LinkedList<Object> finalCount = new LinkedList<Object>();
 
         if (!sourceNode.equals(destinationNode)) {
-            LinkedList<V> visited = new LinkedList();
+            LinkedList<String> visited = new LinkedList();
             visited.add(sourceNode);
             finalCount = (LinkedList) this.dfs(visited, destinationNode, new LinkedList<Object>());
             return filterRoutes(finalCount, condition);
         }
 
-        LinkedList<V> neighbours = this.getNeighbours(sourceNode);
+        LinkedList<String> neighbours = this.getNeighbours(sourceNode);
 
 
-        for (V neighbour : neighbours) {
+        for (String neighbour : neighbours) {
 
-            LinkedList<V> visited = new LinkedList();
+            LinkedList<String> visited = new LinkedList();
             visited.add(neighbour);
 
             for (Object route : this.dfs(visited, destinationNode, new LinkedList<Object>())) {
-                LinkedList<V> temp = new LinkedList<V>();
-                temp = (LinkedList<V>) route;
+                LinkedList<String> temp = new LinkedList<String>();
+                temp = (LinkedList<String>) route;
                 temp.addFirst(sourceNode);
                 finalCount.add(temp);
             }
@@ -157,12 +158,12 @@ public class Graph<V> {
      * @param condition
      * @return
      */
-    private List filterRoutes(LinkedList<Object> routes, StopCondition<V> condition) {
+    private List filterRoutes(LinkedList<Object> routes, StopCondition condition) {
 
         LinkedList<Object> finalRoutes = new LinkedList<Object>();
 
         for (Object route : routes) {
-            LinkedList<V> temp = (LinkedList<V>) route;
+            LinkedList<String> temp = (LinkedList<String>) route;
 
             if (condition.filter(temp)) {
                 finalRoutes.add(route);
@@ -179,16 +180,30 @@ public class Graph<V> {
      * @param node
      * @return
      */
-    public LinkedList<V> getNeighbours(V node) {
-        List<Edge<V>> edges = this.nodes.get(node);
+    public LinkedList<String> getNeighbours(String node) {
+        List<Edge> edges = this.nodes.get(node);
         if (edges == null) {
             return new LinkedList();
         }
-        LinkedList<V> neighbours = new LinkedList<V>();
+        LinkedList<String> neighbours = new LinkedList<String>();
         for (Edge edge : edges) {
-            neighbours.add((V) edge.getVertex());
+            neighbours.add( edge.getVertex());
         }
         return neighbours;
+    }
+
+    private List<String> getUnvisitedNeighbours(String node, List<String> unvisited){
+
+        List<String> neighbours = this.getNeighbours(node);
+        List<String> unVisitedNeighbours = new LinkedList<String>();
+        for(String n : neighbours){
+            if (unvisited.contains(n)){
+                unVisitedNeighbours.add(n);
+            }
+        }
+
+        return unVisitedNeighbours;
+
     }
 
     /**
@@ -199,21 +214,21 @@ public class Graph<V> {
      * @param routes
      * @return
      */
-    private List dfs(LinkedList<V> visited, V lastNode, LinkedList<Object> routes) {
-        LinkedList<V> nodes = this.getNeighbours(visited.getLast());
+    private List dfs(LinkedList<String> visited, String lastNode, LinkedList<Object> routes) {
+        LinkedList<String> nodes = this.getNeighbours(visited.getLast());
 
-        for (V node : nodes) {
+        for (String node : nodes) {
             if (visited.contains(node)) {
                 continue;
             }
             if (node.equals(lastNode)) {
                 visited.add(node);
-                routes.add(new LinkedList<V>(visited));
+                routes.add(new LinkedList<String>(visited));
                 visited.removeLast();
                 break;
             }
         }
-        for (V node : nodes) {
+        for (String node : nodes) {
             if (visited.contains(node) || node.equals(lastNode)) {
                 continue;
             }
@@ -226,21 +241,39 @@ public class Graph<V> {
 
     }
 
-    public int getShortestRouteWeight(V sourceNode, V destinationNode) {
+    public int getShortestRouteWeight(String sourceNode, String destinationNode) {
 
-        return this.dijkstra(sourceNode, destinationNode);
+        List<Integer> bestRoutes = new LinkedList<Integer>();
+        List<String> neighbours = this.getNeighbours(sourceNode);
+        for (String neighbour : neighbours){
+            bestRoutes.add(this.getDistanceToNeighbour(sourceNode, neighbour) + this.dijkstra(neighbour, destinationNode));
+        }
+
+        Collections.sort(bestRoutes);
+        return bestRoutes.get(0);
+    }
+
+    private int getDistanceToNeighbour(String sourceNode, String neighbour){
+
+        List<Edge> edges = this.nodes.get(sourceNode);
+            for (Edge e : edges){
+                if (e.getVertex().equals(neighbour)){
+                    return e.getWeight();
+                }
+            }
+        return 0;
     }
 
 
 
-    public int dijkstra(V sourceNode, V destinationNode) {
+    public int dijkstra(String sourceNode, String destinationNode) {
 
-        Map<V, Double> distanceFromSource = new HashMap<V, Double>();
-        Map<V, V> previousVertex = new HashMap<V, V>();
+        Map<String, Double> distanceFromSource = new HashMap<String, Double>();
+        Map<String, String> previousVertex = new HashMap<String, String>();
 
-        List<V> unVisited = new LinkedList<V>(nodes.keySet());
+        List<String> unVisited = new LinkedList<String>(nodes.keySet());
 
-        for (V key : unVisited) {
+        for (String key : unVisited) {
             distanceFromSource.put(key, Double.POSITIVE_INFINITY);
             previousVertex.put(key, null);
         }
@@ -250,28 +283,24 @@ public class Graph<V> {
         while (unVisited.size() > 0) {
 
             //Get unVisited node with the lowest distance from sourceNode
-            V node = getClosestFromSource(distanceFromSource, unVisited);
+            String node = getClosestFromSource(distanceFromSource, unVisited);
 
-            //Get neighbours from closest unvisited node to source
-            List<V> neighbours = this.getNeighbours(node);
+            //Get unvisited neighbours from that node
+            List<String> neighbours = this.getUnvisitedNeighbours(node, unVisited);
 
-            for (V neighbour : neighbours) {
+            for (String neighbour : neighbours) {
 
                 //Analize the un visited neighbours
                 if (unVisited.contains(neighbour)) {
 
                     //Calculate distance from node to its neighbour
-                    List<V> tempArr = new LinkedList<V>();
-                    tempArr.add(node);
-                    tempArr.add(neighbour);
-                    int distance = this.getRouteWeight((V[]) tempArr.toArray());
+                    int distance = this.getDistanceToNeighbour(node, neighbour);
 
                     Double newCalculatedDistance = distance + distanceFromSource.get(node);
                     if (newCalculatedDistance < distanceFromSource.get(neighbour)){
                         distanceFromSource.put(neighbour, newCalculatedDistance);
                         previousVertex.put(neighbour, node);
                     }
-
                 }
             }
 
@@ -281,12 +310,13 @@ public class Graph<V> {
         return distanceFromSource.get(destinationNode).intValue();
     }
 
-    public V getClosestFromSource(Map<V, Double> distanceFromSource, List<V> unVisited) {
 
-        Set<V> keys = distanceFromSource.keySet();
+    public String getClosestFromSource(Map<String, Double> distanceFromSource, List<String> unVisited) {
+
+        Set<String> keys = distanceFromSource.keySet();
         Double lowest = Double.POSITIVE_INFINITY;
-        V node = null;
-        for (V key : keys) {
+        String node = unVisited.get(0);
+        for (String key : keys) {
             if (unVisited.contains(key)){
                 if (distanceFromSource.get(key) < lowest) {
                     node = key;
