@@ -15,7 +15,8 @@ public class GraphOperations implements GraphOperationsInterface {
 
     private Graph graph;
 
-    public GraphOperations() {}
+    public GraphOperations() {
+    }
 
     public GraphOperations(Graph graph) {
         this.graph = graph;
@@ -28,9 +29,10 @@ public class GraphOperations implements GraphOperationsInterface {
 
     /**
      * Adds a new edge to the graph
-     * @param sourceNode        Starting node of the edge
-     * @param destinationNode   Final node of the edge
-     * @param distance          Distance between nodes
+     *
+     * @param sourceNode      Starting node of the edge
+     * @param destinationNode Final node of the edge
+     * @param distance        Distance between nodes
      */
     public void addEdge(String sourceNode, String destinationNode, int distance) {
         this.graph.addEdge(sourceNode, destinationNode, distance);
@@ -38,12 +40,13 @@ public class GraphOperations implements GraphOperationsInterface {
 
     /**
      * Gets the weight of a given route
+     *
      * @param nodes route (Array of node objects)
-     * @return      weight of the route
+     * @return weight of the route
      */
     public int simpleRouteWeight(String[] nodes) {
 
-        if (graph.isValidRoute(nodes)){
+        if (graph.isValidRoute(nodes)) {
             return graph.getRouteWeight(nodes);
         }
 
@@ -52,10 +55,11 @@ public class GraphOperations implements GraphOperationsInterface {
 
     /**
      * Gets the nomber of possible routes from {startNode} to {destinationNode}
-     * @param startNode         Name of the start node
-     * @param destinationNode   Name of the final node
-     * @param condition         Condition for calculating routes
-     * @return                  Number of routes that match the condition
+     *
+     * @param startNode       Name of the start node
+     * @param destinationNode Name of the final node
+     * @param condition       Condition for calculating routes
+     * @return Number of routes that match the condition
      */
     public int possibleRoutes(String startNode, String destinationNode, StopCondition condition) {
 
@@ -66,9 +70,10 @@ public class GraphOperations implements GraphOperationsInterface {
 
     /**
      * Calculates the weight of the most efficient route
-     * @param startNode         Start node
-     * @param destinationNode   Final Node
-     * @return                  Weight of the most efficient route
+     *
+     * @param startNode       Start node
+     * @param destinationNode Final Node
+     * @return Weight of the most efficient route
      */
     public int shortestRouteWeight(String startNode, String destinationNode) {
 

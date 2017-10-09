@@ -28,12 +28,12 @@ public class Graph {
     }
 
     /**
-     * Verify if the route submitted as an array of objects of type V is valid
+     * Verify if the route submitted as an array of {{@link String}} is valid
      * For a route to be valid, there must be a continued path between the first
      * and the last element
      *
      * @param nodesArray
-     * @return
+     * @return True if the route is valid, false otherwise
      */
     public boolean isValidRoute(String[] nodesArray) {
 
@@ -336,8 +336,8 @@ public class Graph {
         String node = unVisited.get(0);
         for (String key : keys) {
             if (unVisited.contains(key) && distanceFromSource.get(key) < lowest) {
-                    node = key;
-                    lowest = distanceFromSource.get(key);
+                node = key;
+                lowest = distanceFromSource.get(key);
             }
         }
 
@@ -347,6 +347,7 @@ public class Graph {
 
     /**
      * Adds nodes and edges from file.
+     *
      * @param inputFile File object to get information from
      */
     public void buildFromFile(File inputFile) throws FileNotFoundException {

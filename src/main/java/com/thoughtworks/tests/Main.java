@@ -7,7 +7,11 @@ import java.io.FileNotFoundException;
 import java.util.Scanner;
 
 /**
- * Hello world!
+ * Main entry point of the application
+ * Builds a directed graph object using the information in the routes.txt file
+ * Performs the operations in the operations.txt in the previously built graph
+ *
+ * @author Jose Fernandez
  */
 public class Main {
     public static void main(String[] args) throws FileNotFoundException {
@@ -73,7 +77,6 @@ public class Main {
         } finally {
             in.close();
         }
-
 
 
         System.out.print("Finnish!");
