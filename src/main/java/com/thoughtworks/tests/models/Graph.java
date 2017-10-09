@@ -12,7 +12,7 @@ import java.util.*;
  */
 public class Graph {
 
-    private Map<String, List<Edge>> nodes = new HashMap<String, List<Edge>>();
+    private Map<String, List<Edge>> nodes = new HashMap<>();
 
     private void addNode(String vertex) {
         if (nodes.containsKey(vertex)) {
@@ -54,8 +54,8 @@ public class Graph {
                 }
             }
 
-            if (found == false)
-                return false;
+            if (!found)
+                return found;
         }
 
         return true;
@@ -88,9 +88,8 @@ public class Graph {
                 }
             }
 
-            if (found == false)
+            if (!found)
                 throw new IndexOutOfBoundsException("Invalid route!");
-            ;
         }
 
         return weight;
@@ -107,7 +106,7 @@ public class Graph {
      */
     public List getRoutes(String sourceNode, String destinationNode, StopCondition condition) {
 
-        LinkedList<Object> finalCount = new LinkedList<Object>();
+        LinkedList<Object> finalCount = new LinkedList<>();
 
         if (!sourceNode.equals(destinationNode)) {
             LinkedList<String> visited = new LinkedList();
@@ -144,7 +143,7 @@ public class Graph {
      */
     private List filterRoutes(LinkedList<Object> routes, StopCondition condition) {
 
-        LinkedList<Object> finalRoutes = new LinkedList<Object>();
+        LinkedList<Object> finalRoutes = new LinkedList<>();
 
         for (Object route : routes) {
             LinkedList<String> temp = (LinkedList<String>) route;
@@ -169,7 +168,7 @@ public class Graph {
         if (edges == null) {
             return new LinkedList();
         }
-        List<String> neighbours = new LinkedList<String>();
+        List<String> neighbours = new LinkedList<>();
         for (Edge edge : edges) {
             neighbours.add(edge.getVertex());
         }
@@ -188,7 +187,7 @@ public class Graph {
     private List<String> getUnvisitedNeighbours(String node, List<String> unvisited) {
 
         List<String> neighbours = this.getNeighbours(node);
-        List<String> unVisitedNeighbours = new LinkedList<String>();
+        List<String> unVisitedNeighbours = new LinkedList<>();
         for (String n : neighbours) {
             if (unvisited.contains(n)) {
                 unVisitedNeighbours.add(n);
@@ -243,7 +242,7 @@ public class Graph {
      */
     public int getShortestRouteWeight(String sourceNode, String destinationNode) {
 
-        List<Integer> bestRoutes = new LinkedList<Integer>();
+        List<Integer> bestRoutes = new LinkedList<>();
         List<String> neighbours = this.getNeighbours(sourceNode);
         for (String neighbour : neighbours) {
             bestRoutes.add(this.getDistanceToNeighbour(sourceNode, neighbour) + this.dijkstra(neighbour, destinationNode));
@@ -280,10 +279,10 @@ public class Graph {
      */
     private int dijkstra(String sourceNode, String destinationNode) {
 
-        Map<String, Double> distanceFromSource = new HashMap<String, Double>();
-        Map<String, String> previousVertex = new HashMap<String, String>();
+        Map<String, Double> distanceFromSource = new HashMap<>();
+        Map<String, String> previousVertex = new HashMap<>();
 
-        List<String> unVisited = new LinkedList<String>(nodes.keySet());
+        List<String> unVisited = new LinkedList<>(nodes.keySet());
 
         for (String key : unVisited) {
             distanceFromSource.put(key, Double.POSITIVE_INFINITY);

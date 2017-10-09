@@ -25,7 +25,7 @@ public class Main {
             while (in.hasNext()) {
                 String line = in.next();
 
-                String parameters[] = line.split("\\*");
+                String[] parameters = line.split("\\*");
 
                 if (parameters[0].matches("distanceOf")) {
                     try {
