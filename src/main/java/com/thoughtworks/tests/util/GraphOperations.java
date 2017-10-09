@@ -13,7 +13,7 @@ import java.util.List;
  */
 public class GraphOperations implements GraphOperationsInterface {
 
-    private static Graph graph;
+    private Graph graph;
 
     public GraphOperations() {}
 
@@ -32,7 +32,9 @@ public class GraphOperations implements GraphOperationsInterface {
      * @param destinationNode   Final node of the edge
      * @param distance          Distance between nodes
      */
-    public void addEdge(String sourceNode, String destinationNode, int distance) {}
+    public void addEdge(String sourceNode, String destinationNode, int distance) {
+        this.graph.addEdge(sourceNode, destinationNode, distance);
+    }
 
     /**
      * Gets the weight of a given route

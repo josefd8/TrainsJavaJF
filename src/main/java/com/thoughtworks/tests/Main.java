@@ -16,55 +16,64 @@ public class Main {
         File nodesFiles = new File("src/main/resources/routes.txt");
         operationService.addEdgesFromFile(nodesFiles);
 
+
         File operationsFile = new File("src/main/resources/operations.txt");
         Scanner in = new Scanner(operationsFile);
-        while (in.hasNext()) {
-            String line = in.next();
 
-            String parameters[] = line.split("\\*");
+        try {
 
-            if (parameters[0].matches("distanceOf")) {
-                try {
-                    System.out.print(operationService.simpleRouteWeight(getRoute(parameters[1])));
-                } catch (IndexOutOfBoundsException e) {
-                    System.out.print("NO SUCH ROUTE");
+            while (in.hasNext()) {
+                String line = in.next();
+
+                String parameters[] = line.split("\\*");
+
+                if (parameters[0].matches("distanceOf")) {
+                    try {
+                        System.out.print(operationService.simpleRouteWeight(getRoute(parameters[1])));
+                    } catch (IndexOutOfBoundsException e) {
+                        System.out.print("NO SUCH ROUTE");
+                    }
+
                 }
 
-            }
+                if (parameters[0].matches("numberOfRoutes")) {
+                    try {
+                        String[] nodes = getRoute(parameters[1]);
+                        int distance;
 
-            if (parameters[0].matches("numberOfRoutes")) {
-                try {
+                        if (parameters[2].matches("NoStopCondition")) {
+                            System.out.print(operationService.possibleRoutes(nodes[0], nodes[1], new NoStopCountCondition()));
+                        }
+
+                        if (parameters[2].matches("MaxStopCondition")) {
+                            distance = Integer.parseInt(String.valueOf(parameters[3]));
+                            System.out.print(operationService.possibleRoutes(nodes[0], nodes[1], new MaxStopCountCondition(distance)));
+                        }
+
+                        if (parameters[2].matches("FixedStopCondition")) {
+                            distance = Integer.parseInt(String.valueOf(parameters[3]));
+                            System.out.print(operationService.possibleRoutes(nodes[0], nodes[1], new FixedStopCountCondition(distance)));
+                        }
+
+
+                    } catch (IndexOutOfBoundsException e) {
+                        System.out.print("NO SUCH ROUTE");
+                    }
+                }
+
+
+                if (parameters[0].matches("bestRoute")) {
                     String[] nodes = getRoute(parameters[1]);
-                    int distance;
-
-                    if (parameters[2].matches("NoStopCondition")) {
-                        System.out.print(operationService.possibleRoutes(nodes[0], nodes[1], new NoStopCountCondition()));
-                    }
-
-                    if (parameters[2].matches("MaxStopCondition")) {
-                        distance = Integer.parseInt(new String(String.valueOf(parameters[3])));
-                        System.out.print(operationService.possibleRoutes(nodes[0], nodes[1], new MaxStopCountCondition(distance)));
-                    }
-
-                    if (parameters[2].matches("FixedStopCondition")) {
-                        distance = Integer.parseInt(new String(String.valueOf(parameters[3])));
-                        System.out.print(operationService.possibleRoutes(nodes[0], nodes[1], new FixedStopCountCondition(distance)));
-                    }
-
-
-                } catch (IndexOutOfBoundsException e) {
-                    System.out.print("NO SUCH ROUTE");
+                    System.out.print(operationService.shortestRouteWeight(nodes[0], nodes[1]));
                 }
+
+                System.out.print("\n");
             }
 
-
-            if (parameters[0].matches("bestRoute")) {
-                String[] nodes = getRoute(parameters[1]);
-                System.out.print(operationService.shortestRouteWeight(nodes[0], nodes[1]));
-            }
-
-            System.out.print("\n");
+        } finally {
+            in.close();
         }
+
 
 
         System.out.print("Finnish!");

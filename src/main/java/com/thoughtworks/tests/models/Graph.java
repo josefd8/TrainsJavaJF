@@ -124,8 +124,7 @@ public class Graph {
             visited.add(neighbour);
 
             for (Object route : this.dfs(visited, destinationNode, new LinkedList<Object>())) {
-                LinkedList<String> temp = new LinkedList<String>();
-                temp = (LinkedList<String>) route;
+                LinkedList<String> temp = (LinkedList<String>) route;
                 temp.addFirst(sourceNode);
                 finalCount.add(temp);
             }
@@ -209,9 +208,9 @@ public class Graph {
      * @return List of routes from starting point to final point
      */
     private List dfs(LinkedList<String> visited, String lastNode, LinkedList<Object> routes) {
-        List<String> nodes = this.getNeighbours(visited.getLast());
+        List<String> neighbourNodes = this.getNeighbours(visited.getLast());
 
-        for (String node : nodes) {
+        for (String node : neighbourNodes) {
             if (visited.contains(node)) {
                 continue;
             }
@@ -222,7 +221,7 @@ public class Graph {
                 break;
             }
         }
-        for (String node : nodes) {
+        for (String node : neighbourNodes) {
             if (visited.contains(node) || node.equals(lastNode)) {
                 continue;
             }
@@ -291,9 +290,9 @@ public class Graph {
             previousVertex.put(key, null);
         }
 
-        distanceFromSource.put(sourceNode, new Double(0));
+        distanceFromSource.put(sourceNode, (double) 0);
 
-        while (unVisited.size() > 0) {
+        while (!unVisited.isEmpty()) {
 
             //Get unVisited node with the lowest distance from sourceNode
             String node = getClosestFromSource(distanceFromSource, unVisited);
@@ -337,11 +336,9 @@ public class Graph {
         Double lowest = Double.POSITIVE_INFINITY;
         String node = unVisited.get(0);
         for (String key : keys) {
-            if (unVisited.contains(key)) {
-                if (distanceFromSource.get(key) < lowest) {
+            if (unVisited.contains(key) && distanceFromSource.get(key) < lowest) {
                     node = key;
                     lowest = distanceFromSource.get(key);
-                }
             }
         }
 
@@ -356,20 +353,27 @@ public class Graph {
     public void buildFromFile(File inputFile) throws FileNotFoundException {
         Scanner in = new Scanner(inputFile);
 
-        while (in.hasNext()) {
-            String line = in.next();
+        try {
 
-            if (line.length() != 3)
-                throw new IllegalArgumentException("One of the arguments provided is not correct: " + line);
+            while (in.hasNext()) {
+                String line = in.next();
+
+                if (line.length() != 3)
+                    throw new IllegalArgumentException("One of the arguments provided is not correct: " + line);
 
 
-            String startNode = new String(String.valueOf(line.charAt(0)));
-            String finalNode = new String(String.valueOf(line.charAt(1)));
-            int distance = Integer.parseInt(new String(String.valueOf(line.charAt(2))));
+                String startNode = String.valueOf(line.charAt(0));
+                String finalNode = String.valueOf(line.charAt(1));
+                int distance = Integer.parseInt(String.valueOf(line.charAt(2)));
 
-            this.addEdge(startNode, finalNode, distance);
+                this.addEdge(startNode, finalNode, distance);
 
+            }
+
+        } finally {
+            in.close();
         }
+
     }
 
 }
